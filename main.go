@@ -3,13 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/monquixote/gosudoku/sudoku"
 )
 
 func main() {
-	puzzles, err := sudoku.ReadSudokusFromFile("sudoku.txt")
+	file, err := os.Open("sudoku.txt")
+	if err != nil {
+		log.Fatal("Could not open file")
+	}
+	defer file.Close()
+
+	puzzles, err := sudoku.ReadSudokus(file)
 
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +25,10 @@ func main() {
 	//Solving all puzzles serially
 	start := time.Now()
 	for _, puzzle := range puzzles {
-		sudoku.SolvePuzzle(puzzle)
+		_, solved := sudoku.SolvePuzzle(puzzle)
+		if solved == false {
+			log.Fatal("Failed to solve puzzle")
+		}
 	}
 	stop := time.Now()
 	fmt.Printf("Serial %v \n", stop.Sub(start))
@@ -41,12 +51,12 @@ func main() {
 	fmt.Println("Before")
 	fmt.Println(sudoku.Puzzle2String(puzzles[0]))
 
-	sets, complete := sudoku.SolvePuzzle(puzzles[0])
+	constraints, complete := sudoku.SolvePuzzle(puzzles[0])
 
 	if complete {
 		fmt.Println("Puzzle solved!")
 	} else {
 		fmt.Println("Puzzle failed :(")
 	}
-	fmt.Println(sudoku.Puzzle2String(sets))
+	fmt.Println(sudoku.Puzzle2String(constraints))
 }
