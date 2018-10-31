@@ -36,6 +36,8 @@ func main() {
 			log.Fatal("Failed to solve puzzle")
 		}
 
+		fmt.Print(sudoku.Puzzle2String(solvedPuzzle) + "\n")
+
 		if !sudoku.ValidatePuzzle(solvedPuzzle) {
 			log.Fatal("Solution Invalid")
 		}

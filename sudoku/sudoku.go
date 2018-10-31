@@ -54,11 +54,12 @@ func SolvePuzzle(puzzle []int) ([]int, bool) {
 // ReadSudokus Takes sudokus in the Euler 96 text format https://projecteuler.net/problem=96
 // Returns a 2D slice containing the parsed puzzles
 func ReadSudokus(reader io.Reader) ([][]int, error) {
-	puzzles := make([][]int, 50)
+	puzzles := [][]int{}
 
 	scanner := bufio.NewScanner(reader)
 	numberCounter := 0
 	puzzleCounter := 0
+	puzzle := []int{}
 	for scanner.Scan() {
 		if strings.Contains(scanner.Text(), "Grid") {
 			continue
@@ -68,13 +69,15 @@ func ReadSudokus(reader io.Reader) ([][]int, error) {
 			if val > 9 || val < 0 {
 				return nil, errors.New("Invalid Character in puzzle: " + strconv.Itoa(puzzleCounter) + " element " + strconv.Itoa(numberCounter))
 			}
-			puzzles[puzzleCounter] = append(puzzles[puzzleCounter], val)
+			puzzle = append(puzzle, val)
 			numberCounter++
 		}
 
 		if numberCounter == dim*dim {
 			puzzleCounter++
 			numberCounter = 0
+			puzzles = append(puzzles, puzzle)
+			puzzle = []int{}
 		}
 	}
 
@@ -291,6 +294,11 @@ func generateBoardMasks() [][][]int {
 func ValidatePuzzle(puzzle []int) bool {
 	if len(puzzle) != dim*dim {
 		return false
+	}
+	for _, val := range puzzle {
+		if val > 9 || val < 0 {
+			return false
+		}
 	}
 	for _, maskType := range masks {
 		for _, mask := range maskType {
