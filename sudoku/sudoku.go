@@ -10,11 +10,18 @@ import (
 	"strings"
 )
 
+const dim = 9 //The dimensions of a puzzle
+var boxDim = int(math.Sqrt(dim))
+
+// Values for masking off the board
+// 3D slice [type - row/column/box][mask index][mask value]
+var masks = generateBoardMasks()
+
 // constraint represents the legal values a square could take
 type constraint map[int]bool
 
 func (c *constraint) clone() constraint {
-	newc := map[int]bool{}
+	newc := constraint{}
 	for key, val := range *c {
 		newc[key] = val
 	}
@@ -34,13 +41,6 @@ func newConstraint(val int) constraint {
 	}
 	return c
 }
-
-const dim = 9 //The dimensions of a puzzle
-var boxDim = int(math.Sqrt(dim))
-
-// Values for masking off the board
-// 3D slice [type - row/column/box][mask index][mask value]
-var masks = generateBoardMasks()
 
 // SolvePuzzle Attempts to solve a sudoku.
 // Takes a puzzle as an int slice row by row with 0 representing an unknown value.
@@ -132,11 +132,11 @@ func getSearchCandidate(constraints []constraint) (int, error) {
 
 // Clones a contraint array
 func cloneBoard(constraints []constraint) []constraint {
-	newSet := []constraint{}
-	for _, set := range constraints {
-		newSet = append(newSet, set.clone())
+	cloned := []constraint{}
+	for _, c := range constraints {
+		cloned = append(cloned, c.clone())
 	}
-	return newSet
+	return cloned
 }
 
 // Checks if a puzzle is complete (every square is constrained to a single value)
@@ -287,4 +287,29 @@ func generateBoardMasks() [][][]int {
 	return [][][]int{rows[:], cols[:], boxes[:]}
 }
 
-// TODO - Write a validation function
+// ValidatePuzzle determines if a given puzzle is valid
+func ValidatePuzzle(puzzle []int) bool {
+	if len(puzzle) != dim*dim {
+		return false
+	}
+	for _, maskType := range masks {
+		for _, mask := range maskType {
+			if !validateMask(puzzle, mask) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// Checks for duplicate numbers within a given masked off section of the puzzle
+func validateMask(puzzle []int, mask []int) bool {
+	seenBefore := make([]bool, dim+1)
+	for _, maskVal := range mask {
+		if puzzle[maskVal] != 0 && seenBefore[puzzle[maskVal]] == true {
+			return false
+		}
+		seenBefore[puzzle[maskVal]] = true
+	}
+	return true
+}

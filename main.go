@@ -22,12 +22,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	for i, puzzle := range puzzles {
+		if !sudoku.ValidatePuzzle(puzzle) {
+			log.Fatalf("Puzzle import failed puzzle %d invalid ", i)
+		}
+	}
+
 	//Solving all puzzles serially
 	start := time.Now()
 	for _, puzzle := range puzzles {
-		_, solved := sudoku.SolvePuzzle(puzzle)
+		solvedPuzzle, solved := sudoku.SolvePuzzle(puzzle)
 		if solved == false {
 			log.Fatal("Failed to solve puzzle")
+		}
+
+		if !sudoku.ValidatePuzzle(solvedPuzzle) {
+			log.Fatal("Solution Invalid")
 		}
 	}
 	stop := time.Now()
