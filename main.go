@@ -10,7 +10,14 @@ import (
 )
 
 func main() {
-	file, err := os.Open("sudoku.txt")
+
+	args := os.Args[1:]
+	if len(args) == 0 {
+		log.Fatal("Filename required as first argument")
+	}
+
+	file, err := os.Open(args[0])
+
 	if err != nil {
 		log.Fatal("Could not open file")
 	}
