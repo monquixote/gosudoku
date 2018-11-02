@@ -86,5 +86,31 @@ func TestSolvePuzzle(t *testing.T) {
 			}
 		}
 	}
+}
 
+// Sequential Benchmark
+func BenchmarkSerial(b *testing.B) {
+	puzzles := loadTestFile("../../sudoku.txt")
+	b.ResetTimer()
+
+	for _, puzzle := range puzzles {
+		sudoku.SolvePuzzle(puzzle)
+	}
+}
+
+// Parallel Benchmark
+func BenchmarkParallel(b *testing.B) {
+	puzzles := loadTestFile("../../sudoku.txt")
+	b.ResetTimer()
+
+	bools := make(chan bool, len(puzzles))
+	for _, puzzle := range puzzles {
+		go func(puzzle []int) {
+			_, res := sudoku.SolvePuzzle(puzzle)
+			bools <- res
+		}(puzzle)
+	}
+	for range puzzles {
+		<-bools
+	}
 }
