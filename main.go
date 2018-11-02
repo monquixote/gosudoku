@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -10,13 +11,10 @@ import (
 )
 
 func main() {
+	sudokuPath := flag.String("file", "sudoku.txt", "Path to the file containing sudokus")
+	flag.Parse()
 
-	args := os.Args[1:]
-	if len(args) == 0 {
-		log.Fatal("Filename required as first argument")
-	}
-
-	file, err := os.Open(args[0])
+	file, err := os.Open(*sudokuPath)
 
 	if err != nil {
 		log.Fatal("Could not open file")
